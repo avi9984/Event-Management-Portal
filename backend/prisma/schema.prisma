@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+
+  ADMIN
+  USER
+
+}
+
+model User {
+
+  id              String      @id @default(uuid())
+  username        String      @unique
+  password        String
+  role            Role        @default(USER)
+  activeSessionId String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  events          Event[]
+  sessions        Session[]
+}
+
+model Session {
+
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String
+  socketId     String?
+  browser      String?
+  device       String?
+  ipAddress    String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+
+  id         String      @id @default(uuid())
+  name       String
+  parentId   String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  parent     Category?   @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children   Category[]  @relation("CategoryHierarchy")
+  events      Event[]
+}
+
+model Event {
+
+  id            String      @id @default(uuid())
+  title         String
+  description   String
+  publishAt     DateTime
+  deletedAt     DateTime?
+  userId        String
+  categoryId    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     User @relation(fields: [userId], references: [id])
+  category      Category @relation(fields: [categoryId], references: [id])
+  media         EventMedia[]
+
+}
+
+model EventMedia {
+
+  id         String   @id @default(uuid())
+  eventId    String
+  imageUrl   String
+  createdAt  DateTime @default(now())
+  event      Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+}
