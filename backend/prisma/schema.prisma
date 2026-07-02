@@ -69,6 +69,7 @@ model Event {
   description   String
   publishAt     DateTime
   deletedAt     DateTime?
+  isDeleted     Boolean   @default(false)
   userId        String
   categoryId    String
   createdAt     DateTime @default(now())
@@ -80,11 +81,13 @@ model Event {
 }
 
 model EventMedia {
+  id        String   @id @default(uuid())
+  eventId   String
+  fileName  String
+  imageUrl  String
+  mimeType  String
+  fileSize  Int
+  createdAt DateTime @default(now())
 
-  id         String   @id @default(uuid())
-  eventId    String
-  imageUrl   String
-  createdAt  DateTime @default(now())
-  event      Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
-
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
