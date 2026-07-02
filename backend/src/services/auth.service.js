@@ -9,13 +9,13 @@ export const loginAuth = async (username, password) => {
     });
 
     if (!user) {
-        throw new Error("User not found");
+        throw new Error("User not found", 404);
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-        throw new Error("Invalid password");
+        throw new Error("Invalid password", 401);
     }
     const sessionId = uuid();
 
