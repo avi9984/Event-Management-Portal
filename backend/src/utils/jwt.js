@@ -12,4 +12,4 @@ const generateRefreshToken = (payload) => {
   });
 };
 
-export default { generateAccessToken, generateRefreshToken }
+export { generateAccessToken, generateRefreshToken }

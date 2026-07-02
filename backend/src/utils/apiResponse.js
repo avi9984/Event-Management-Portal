@@ -13,4 +13,4 @@ const error = (res, message, code = 400) => {
     });
 };
 
-export default { success, error };
+export { success, error };

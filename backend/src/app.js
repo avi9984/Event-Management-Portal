@@ -4,7 +4,8 @@ import helmet from "helmet";
 import morgan from "morgan";
 // import cookieParser from "cookie-parser";
 import rateLimiter from "./middlewares/rateLimiter.js";
-import errorHandler from "./middlewares/errorHandler.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
+import authRoutes from "./routes/auth.routes.js";
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.use(errorHandler);
 app.use(express.urlencoded({ extended: true }));
 
 // app.use(cookieParser());
+
+app.use("/api/auth", authRoutes);
 
 app.use(morgan("dev"));
 
