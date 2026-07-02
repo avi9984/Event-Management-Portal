@@ -1,4 +1,4 @@
-import { loginAuth } from "../services/auth.service.js";
+import { loginAuth, logoutService } from "../services/auth.service.js";
 import { success, error } from "../utils/apiResponse.js";
 
 export const login = async (req, res, next) => {
@@ -17,3 +17,12 @@ export const login = async (req, res, next) => {
     }
 }
 
+export const logout = async (req, res, next) => {
+    try {
+        await logoutService(req.user);
+
+        return success(res, null, "Logout successful", 200);
+    } catch (err) {
+        next(err);
+    }
+};

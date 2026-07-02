@@ -75,3 +75,23 @@ export const loginAuth = async (username, password) => {
     });
     return { accessToken, refreshToken };
 };
+
+export const logoutService = async (user) => {
+    await prisma.session.update({
+        where: {
+            id: user.sessionId,
+        },
+        data: {
+            isActive: false,
+        },
+    });
+
+    await prisma.user.update({
+        where: {
+            id: user.userId,
+        },
+        data: {
+            activeSessionId: null,
+        },
+    });
+};
