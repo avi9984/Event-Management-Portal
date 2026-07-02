@@ -356,11 +356,3 @@ Responses are converted to the user's timezone using the `X-Timezone` request he
 * Redis-based Socket.IO Adapter for horizontal scaling
 
 ---
-
-# Author
-
-**Avinash Kumar**
-
-Backend Developer
-
-Node.js | Express.js | PostgreSQL | Prisma | Socket.IO
