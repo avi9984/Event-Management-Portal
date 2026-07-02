@@ -1,13 +1,16 @@
 import jwt from "jsonwebtoken";
-import { success, error } from "../utils/apiResponse.js";
+// import { success, error } from "../utils/apiResponse.js";
 import prisma from "../config/prisma.js";
 
-export default async (req, res, next) => {
+export default async function (req, res, next) {
     try {
         const token = req.headers.authorization?.split(" ")[1];
 
         if (!token) {
-            return error(res, "Unauthorized", 401)
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized",
+            });
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -19,11 +22,27 @@ export default async (req, res, next) => {
         });
 
         if (!user) {
-            return error(res, "User not found", 404);
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
+            });
         }
 
-        if (decoded.sessionId !== user.activeSessionId) {
-            return error(res, "You have logged in from another browser.", 401);
+        if (user.activeSessionId !== decoded.sessionId) {
+            return res.status(401).json({ success: false, message: "You have logged in from another browser.", });
+        }
+
+        const session = await prisma.session.findUnique({
+            where: {
+                id: decoded.sessionId,
+            },
+        });
+
+        if (!session || !session.isActive) {
+            return res.status(401).json({
+                success: false,
+                message: "Session expired.",
+            });
         }
 
         req.user = decoded;
@@ -32,4 +51,4 @@ export default async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-};
+}

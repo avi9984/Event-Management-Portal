@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import prisma from "../config/prisma.js";
 import { v4 as uuid } from "uuid";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt.js";
+import { getIO, getUserSocket } from "../sockets/socket.js";
 
 export const loginAuth = async (username, password) => {
     const user = await prisma.user.findUnique({
@@ -17,6 +18,33 @@ export const loginAuth = async (username, password) => {
     if (!isPasswordValid) {
         throw new Error("Invalid password", 401);
     }
+
+    const oldSession = await prisma.session.findFirst({
+        where: {
+            userId: user.id,
+            isActive: true,
+        },
+    });
+
+    if (oldSession) {
+        await prisma.session.update({
+            where: {
+                id: oldSession.id,
+            },
+            data: {
+                isActive: false,
+            },
+        });
+
+        const socketId = getUserSocket(user.id);
+
+        if (socketId) {
+            getIO().to(socketId).emit("forceLogout", {
+                message: "Logged in from another browser.",
+            });
+        }
+    }
+
     const sessionId = uuid();
 
     await prisma.user.update({
